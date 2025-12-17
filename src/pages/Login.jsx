@@ -4,26 +4,54 @@ import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({ email: '', password: '', confirmPassword: '' });
-  const { login } = useAuth();
+  const [formData, setFormData] = useState({ email: '', password: '', confirmPassword: '', name: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { login, register } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
 
-  const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setError('');
+  };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+
     if (!isLogin && formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      setError('Passwords do not match!');
+      setLoading(false);
       return;
     }
 
-    // perform "login"
-    login(formData.email || 'guest@example.com');
+    try {
+      let result;
+      if (isLogin) {
+        result = await login(formData.email, formData.password);
+      } else {
+        result = await register(formData.email, formData.password, formData.name);
+      }
 
-    // after login, redirect to intended route
-    navigate(from, { replace: true });
+      if (result.success) {
+        if (isLogin) {
+          navigate(from, { replace: true });
+        } else {
+          setIsLogin(true);
+          setFormData({ email: '', password: '', confirmPassword: '', name: '' });
+          setError('Registration successful! Please login.');
+        }
+      } else {
+        setError(result.error || 'Authentication failed');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,7 +59,21 @@ const Login = () => {
       <div className="bg-white rounded-2xl p-8 shadow">
         <h2 className="text-center text-2xl font-bold text-boutiquePink">{isLogin ? 'Welcome Back!' : 'Create Account'}</h2>
 
+        {error && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          {!isLogin && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700">Full Name</label>
+              <input name="name" type="text" required value={formData.name} onChange={handleChange}
+                     className="mt-2 w-full border border-pink-100 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-200" placeholder="Enter your full name" />
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-semibold text-gray-700">Email Address</label>
             <input name="email" type="email" required value={formData.email} onChange={handleChange}
@@ -52,8 +94,8 @@ const Login = () => {
             </div>
           )}
 
-          <button type="submit" className="w-full btn-primary">
-            {isLogin ? 'Login' : 'Sign Up'}
+          <button type="submit" disabled={loading} className="w-full btn-primary disabled:opacity-50">
+            {loading ? 'Processing...' : (isLogin ? 'Login' : 'Sign Up')}
           </button>
         </form>
 

@@ -29,7 +29,7 @@ const Navbar = () => {
             <Link to="/login" className="hover:-translate-y-0.5 transition">Login</Link>
           ) : (
             <>
-              <span className="text-sm text-gray-600">Hello, {user?.email}</span>
+              <span className="text-sm text-gray-600">Hello, {user?.name}</span>
               <button onClick={handleLogout} className="text-sm text-pink-600 font-semibold">Logout</button>
             </>
           )}

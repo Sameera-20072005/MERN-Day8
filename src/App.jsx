@@ -10,8 +10,22 @@ import Cart from './pages/Cart';
 import ProductDetails from './pages/ProductDetails';
 import OrderSuccess from './pages/OrderSuccess';
 import ProtectedRoute from './components/ProtectedRoute';
+import { useAuth } from './context/AuthContext';
 
 function App() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-boutiqueBg">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-boutiquePink mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <div className="min-h-screen flex flex-col bg-boutiqueBg text-gray-800">
@@ -29,8 +43,6 @@ function App() {
               <Route path="/cart" element={<Cart />} />
               <Route path="/success" element={<OrderSuccess />} />
             </Route>
-
-            {/* fallback can optionally be added */}
           </Routes>
         </div>
         <Footer />

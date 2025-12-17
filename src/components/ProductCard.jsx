@@ -20,7 +20,7 @@ const ProductCard = ({ product, onQuickBuy }) => {
       return;
     }
     // otherwise, on product-card-level, go to details (where buy now will be handled)
-    navigate(`/products/${product.id}`);
+    navigate(`/products/${product._id || product.id}`);
   };
 
   return (
@@ -28,9 +28,12 @@ const ProductCard = ({ product, onQuickBuy }) => {
   
   <div className="h-100 rounded-xl overflow-hidden">
     <img 
-      src={product.image} 
+      src={product.image || product.imageUrl} 
       alt={product.name} 
       className="w-full h-full object-cover"
+      onError={(e) => {
+        e.target.src = 'https://via.placeholder.com/400x400?text=No+Image';
+      }}
     />
   </div>
 
@@ -47,7 +50,7 @@ const ProductCard = ({ product, onQuickBuy }) => {
   </div>
 
   <div className="mt-3 text-right">
-    <Link to={`/products/${product.id}`} className="text-sm text-gray-500 hover:underline">View Details</Link>
+    <Link to={`/products/${product._id || product.id}`} className="text-sm text-gray-500 hover:underline">View Details</Link>
   </div>
 </div>
   );

@@ -10,9 +10,12 @@ const CartItem = ({ item }) => {
       {/* Product Image */}
       <div className="w-32 h-48 rounded-lg overflow-hidden bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center">
         <img 
-          src={item.image}
+          src={item.image || item.imageUrl}
           alt={item.name}
           className="w-full h-full object-cover"
+          onError={(e) => {
+            e.target.src = 'https://via.placeholder.com/200x300?text=No+Image';
+          }}
         />
       </div>
 
